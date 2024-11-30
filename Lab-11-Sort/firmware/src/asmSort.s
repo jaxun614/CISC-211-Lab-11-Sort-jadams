@@ -13,7 +13,7 @@
 .type nameStr,%gnu_unique_object
     
 /*** STUDENTS: Change the next line to your name!  **/
-nameStr: .asciz "Inigo Montoya"  
+nameStr: .asciz "Jackson Adams"  
 
 .align   /* realign so that next mem allocations are on word boundaries */
  
@@ -73,8 +73,101 @@ NOTE: definitions: "greater than" means most positive number
 asmSwap:
 
     /* YOUR asmSwap CODE BELOW THIS LINE! VVVVVVVVVVVVVVVVVVVVV  */
-
-
+    push {r4-r11, lr}
+    
+    /* signed or unsigned */
+    ldr r4, =1
+    cmp r1, r4
+    beq signed
+unsigned:    
+    /* data size */
+    ldr r4, =1 /* 1 == byte */
+    cmp r2, r4
+    beq unsignedByteOpp
+    ldr r4, =1 /* 2 == half word */
+    cmp r2, r4
+    beq unsignedHalfOpp
+    ldr r4, =1 /* 4 == word */
+    cmp r2, r4
+    beq unsignedWordOpp
+    b endSwap /* data size is not handeled by this func */
+    /* if (v1 > v2):
+	    swap v1 and v2.
+       else ( if v1 == 0 OR v2 == 0 OR if v1 <= v2):
+			DO NOT swap values in memory. */
+unsignedByteOpp:
+    mov r4, r0 /* move the mem address in r0 to r4 to be worked on */
+    ldrb r5, [r4], 1 /* r5 is v[i] */
+    ldrb r6, [r4] /* r6 is v[i+1] */
+    /* check if either value is 0 */
+    ldr r7, =0
+    cmp r5, r7
+    beq zeroNoSwap /* v[i] == 0 */
+    cmp r6, r7
+    beq zeroNoSwap /* v[i+1] == 0 */
+    /* check if the values are in order */
+    cmp r5, r6
+    bls nonZeroNoSwap /* v[i] <= v[i+1] */
+    /* the values can be swaped, v[i] > v[i+1] */
+    strb r6, [r0], 1 /* write v[i+1] to the mem address in r0, post increment by 1 */
+    strb r5, [r0] /* write v[i] to the mem address in r0 */
+    ldr r0, =1 /* a 1 in r0 indicates a swap */
+    b endSwap
+    
+unsignedHalfOpp: 
+    mov r4, r0 /* move the mem address in r0 to r4 to be worked on */
+    ldrh r5, [r4], 1 /* r5 is v[i] */
+    ldrh r6, [r4] /* r6 is v[i+1] */
+    /* check if either value is 0 */
+    ldr r7, =0
+    cmp r5, r7
+    beq zeroNoSwap /* v[i] == 0 */
+    cmp r6, r7
+    beq zeroNoSwap /* v[i+1] == 0 */
+    /* check if the values are in order */
+    cmp r5, r6
+    bls nonZeroNoSwap /* v[i] <= v[i+1] */
+    /* the values can be swaped, v[i] > v[i+1] */
+    strh r6, [r0], 1 /* write v[i+1] to the mem address in r0, post increment by 1 */
+    strh r5, [r0] /* write v[i] to the mem address in r0 */
+    ldr r0, =1 /* a 1 in r0 indicates a swap */
+    b endSwap
+    
+unsignedWordOpp:    
+    mov r4, r0 /* move the mem address in r0 to r4 to be worked on */
+    ldr r5, [r4], 1 /* r5 is v[i] */
+    ldr r6, [r4] /* r6 is v[i+1] */
+    /* check if either value is 0 */
+    ldr r7, =0
+    cmp r5, r7
+    beq zeroNoSwap /* v[i] == 0 */
+    cmp r6, r7
+    beq zeroNoSwap /* v[i+1] == 0 */
+    /* check if the values are in order */
+    cmp r5, r6
+    bls nonZeroNoSwap /* v[i] <= v[i+1] */
+    /* the values can be swaped, v[i] > v[i+1] */
+    str r6, [r0], 1 /* write v[i+1] to the mem address in r0, post increment by 1 */
+    str r5, [r0] /* write v[i] to the mem address in r0 */
+    ldr r0, =1 /* a 1 in r0 indicates a swap */
+    b endSwap
+    
+    
+signed:  
+    
+/* either of the values are 0 */    
+zeroNoSwap:
+    ldr r0, =-1
+    b endSwap
+    
+/* in order values */    
+nonZeroNoSwap:
+    ldr r0, =0
+    b endSwap
+    
+endSwap:  
+    pop {r4-r11, lr}
+    bx lr
 
     /* YOUR asmSwap CODE ABOVE THIS LINE! ^^^^^^^^^^^^^^^^^^^^^  */
     
